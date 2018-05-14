@@ -2,7 +2,7 @@
 # EC2 instance
 ######
 resource "aws_instance" "this" {
-  count = "${var.count}"
+  count = "${var.instance_count}"
 
   ami                    = "${var.ami}"
   instance_type          = "${var.instance_type}"
@@ -33,11 +33,11 @@ resource "aws_instance" "this" {
   # Note: network_interface can't be specified together with associate_public_ip_address
   # network_interface = "${var.network_interface}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%d", var.name, count.index+1)))}"
+  tags = "${merge(var.tags, map("Name", var.instance_count > 1 ? format("%s-%d", var.name, count.index+1) : var.name))}"
   lifecycle {
     # Due to several known issues in Terraform AWS provider related to arguments of aws_instance:
     # (eg, https://github.com/terraform-providers/terraform-provider-aws/issues/2036)
     # we have to ignore changes in the following arguments
-    ignore_changes = ["private_ip", "vpc_security_group_ids", "root_block_device", "ebs_block_device"]
+    ignore_changes = ["private_ip", "root_block_device"]
   }
 }
